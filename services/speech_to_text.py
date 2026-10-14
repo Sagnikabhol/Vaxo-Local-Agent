@@ -62,15 +62,15 @@ class SpeechToTextService:
             return False
         return False
 
-    def listen(self, timeout: int = 5, phrase_time_limit: int = 10) -> str:
+    def listen(self, timeout: int = 8, phrase_time_limit: int = 15) -> str:
         """
         Listen for speech and return transcribed text.
 
         Uses Google Web Speech API (requires internet connection).
 
         Args:
-            timeout: Maximum seconds to wait for speech to start.
-            phrase_time_limit: Maximum seconds of speech to capture.
+            timeout: Maximum seconds to wait for speech to start (default 8s).
+            phrase_time_limit: Maximum seconds of speech to capture (default 15s).
 
         Returns:
             Transcribed text string.
@@ -85,11 +85,13 @@ class SpeechToTextService:
             )
 
         recognizer = self._recognizer
+        recognizer.pause_threshold = 0.8
+        recognizer.non_speaking_duration = 0.5
 
         try:
             with sr.Microphone() as source:
                 # Adjust for ambient noise briefly
-                recognizer.adjust_for_ambient_noise(source, duration=0.5)
+                recognizer.adjust_for_ambient_noise(source, duration=0.4)
 
                 # Listen for speech
                 logger.info("Listening for speech...")

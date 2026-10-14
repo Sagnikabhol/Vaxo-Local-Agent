@@ -31,7 +31,6 @@ def open_calculator() -> ActionResult:
         subprocess.Popen(
             ["calc.exe"],
             shell=False,
-            creationflags=subprocess.CREATE_NO_WINDOW if hasattr(subprocess, "CREATE_NO_WINDOW") else 0,
         )
         return ActionResult(
             success=True,
@@ -52,7 +51,6 @@ def open_notepad() -> ActionResult:
         subprocess.Popen(
             ["notepad.exe"],
             shell=False,
-            creationflags=subprocess.CREATE_NO_WINDOW if hasattr(subprocess, "CREATE_NO_WINDOW") else 0,
         )
         return ActionResult(
             success=True,
@@ -182,7 +180,7 @@ def create_default_registry() -> ActionRegistry:
     registry.register(Action(
         name="open_calculator",
         description="Open Windows Calculator",
-        keywords=["calculator", "calc", "open calculator", "open calc", "math"],
+        keywords=["calculator", "calc", "open calculator", "open calc", "launch calculator", "start calculator", "open the calculator"],
         handler=open_calculator,
         category="applications",
     ))
@@ -190,7 +188,7 @@ def create_default_registry() -> ActionRegistry:
     registry.register(Action(
         name="open_notepad",
         description="Open Windows Notepad",
-        keywords=["notepad", "open notepad", "text editor", "editor", "open editor"],
+        keywords=["notepad", "open notepad", "text editor", "editor", "open editor", "launch notepad", "start notepad", "open the notepad", "notes"],
         handler=open_notepad,
         category="applications",
     ))
@@ -198,7 +196,7 @@ def create_default_registry() -> ActionRegistry:
     registry.register(Action(
         name="open_browser",
         description="Open default web browser",
-        keywords=["browser", "open browser", "web", "internet", "chrome", "edge", "open chrome", "open edge"],
+        keywords=["browser", "open browser", "web", "internet", "chrome", "edge", "open chrome", "open edge", "google", "open google", "open the browser"],
         handler=open_browser,
         category="applications",
     ))

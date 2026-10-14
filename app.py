@@ -298,29 +298,35 @@ def process_user_input(user_input: str) -> str:
     registry = st.session_state.action_registry
     conversation: ConversationService = st.session_state.conversation_service
 
-    # First, check for action intent via keyword matching
-    intent = llm.generate_intent(user_input)
+    # Check for direct action match in registry first (most accurate keyword matching)
+    matched_action = registry.find_action(user_input)
+    action_name = matched_action.name if matched_action else None
+    action_args = {}
 
-    if intent["intent"] != "chat":
-        # Execute the matched action
-        action_name = intent["intent"]
-        if registry.is_registered(action_name):
-            result = registry.execute(action_name, intent.get("args"))
+    # If registry didn't find direct match, fallback to LLM intent detection
+    if not action_name:
+        intent = llm.generate_intent(user_input)
+        if intent.get("intent") != "chat":
+            action_name = intent["intent"]
+            action_args = intent.get("args", {})
 
-            # Log to database
-            st.session_state.repository.log_action(
-                action_name, intent.get("args", {}), result.message, result.success
-            )
+    if action_name and registry.is_registered(action_name):
+        result = registry.execute(action_name, action_args if action_args else None)
 
-            # Handle special actions
-            if result.data and result.data.get("action") == "stop_voice":
-                st.session_state.tts_enabled = False
-                st.session_state.voice_state = "idle"
+        # Log to database
+        st.session_state.repository.log_action(
+            action_name, action_args, result.message, result.success
+        )
 
-            if result.data and result.data.get("action") == "show_history":
-                st.session_state.current_page = "history"
+        # Handle special actions
+        if result.data and result.data.get("action") == "stop_voice":
+            st.session_state.tts_enabled = False
+            st.session_state.voice_state = "idle"
 
-            return result.message
+        if result.data and result.data.get("action") == "show_history":
+            st.session_state.current_page = "history"
+
+        return result.message
 
     # No action match — chat with LLM
     context = conversation.get_context()

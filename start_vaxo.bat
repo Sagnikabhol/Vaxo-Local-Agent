@@ -16,6 +16,10 @@ if exist "venv\Scripts\activate.bat" (
     exit /b 1
 )
 
+:: Set UTF-8 encoding for Windows terminal & subprocesses
+set PYTHONIOENCODING=utf-8
+set PYTHONUTF8=1
+
 :: Launch Vaxo using python module execution
 python -m streamlit run app.py --server.port 8501 --server.headless false --theme.base dark
 
