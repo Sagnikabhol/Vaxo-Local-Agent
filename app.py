@@ -516,7 +516,7 @@ def render_assistant_page():
             st.rerun()
 
     with col4:
-        refresh_btn = st.button("🔄 Reconnect", use_container_width=True, help="Refresh connection to Ollama"):
+        if st.button("🔄 Reconnect", use_container_width=True, help="Refresh connection to Ollama"):
             st.session_state.ollama_connected = st.session_state.llm.check_connection()
             if st.session_state.ollama_connected:
                 st.session_state.available_models = st.session_state.llm.get_available_models()
