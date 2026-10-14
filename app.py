@@ -266,6 +266,9 @@ def initialize_services():
     st.session_state.ollama_connected = st.session_state.llm.check_connection()
     if st.session_state.ollama_connected:
         st.session_state.available_models = st.session_state.llm.get_available_models()
+    else:
+        # Auto-enable demo mode when Ollama is offline so user can chat immediately
+        st.session_state.llm.demo_mode = True
 
     # Initialize conversation service
     st.session_state.conversation_service = ConversationService(

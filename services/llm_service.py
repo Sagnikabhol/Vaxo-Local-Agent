@@ -167,6 +167,26 @@ class VaxoLLM:
                 "🤖 **[Portfolio Demo Mode]** I am **Vaxo**, a local voice AI & desktop automation assistant. "
                 "I am built with Python, Ollama for local LLM inference, and safe allowlisted OS automation."
             )
+        elif any(w in msg_lower for w in ["what can you do", "features", "capabilities", "help"]):
+            return (
+                "⚡ **[Portfolio Demo Mode]** Here is what I can do for you:\n"
+                "- **Open Apps:** Say *'open calculator'*, *'open notepad'*, or *'open browser'*\n"
+                "- **System Stats:** Say *'system info'* or *'cpu usage'*\n"
+                "- **Time & Date:** Say *'what time is it'* or *'date today'*\n"
+                "- **Voice Controls:** Push-to-talk mic input and offline voice replies\n"
+                "- **Local AI Chat:** Answer general questions privately with Ollama\n"
+                "- **History:** View past conversations and action logs in the sidebar!"
+            )
+        elif any(w in msg_lower for w in ["how are you", "how's it going", "how do you do"]):
+            return (
+                "😊 **[Portfolio Demo Mode]** I'm doing great, thank you! All systems are online and ready to assist you. "
+                "What would you like me to do?"
+            )
+        elif any(w in msg_lower for w in ["joke", "funny"]):
+            return (
+                "😄 **[Portfolio Demo Mode]** Why do programmers prefer dark mode?\n\n"
+                "Because light attracts bugs!"
+            )
         elif any(w in msg_lower for w in ["stack", "technology", "built with", "architecture"]):
             return (
                 "🛠️ **[Portfolio Demo Mode]** Vaxo is built with Python 3.12, Streamlit for the responsive UI, "
@@ -179,14 +199,15 @@ class VaxoLLM:
             )
         elif any(w in msg_lower for w in ["hello", "hi", "hey", "greetings"]):
             return (
-                "👋 **[Portfolio Demo Mode]** Hello! I'm Vaxo. You're in demo mode. "
-                "Try saying 'open calculator', 'what time is it', 'system info', or asking a question."
+                "👋 **[Portfolio Demo Mode]** Hello! I'm Vaxo, your local voice AI assistant. "
+                "Try saying *'open calculator'*, *'what time is it'*, *'system info'*, or ask me anything!"
             )
         else:
             return (
-                f"💡 **[Portfolio Demo Mode]** Query received: *\"{message}\"*\n\n"
-                "In local production mode, this query is processed 100% privately on your computer by your Ollama model "
-                f"(`{self.model}`) with zero external API calls."
+                f"💡 **[Portfolio Demo Mode]** I received your query: *\"{message}\"*\n\n"
+                "In local production mode, this query is processed 100% privately on your machine by your local Ollama LLM "
+                f"(`{self.model}`) with zero external API calls. "
+                "To enable full neural inference, install Ollama and run `ollama pull tinyllama`."
             )
 
     def generate_intent(self, message: str) -> dict[str, Any]:
