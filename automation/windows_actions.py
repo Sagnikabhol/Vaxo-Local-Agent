@@ -122,14 +122,17 @@ def get_system_info() -> ActionResult:
             "cpu_cores": psutil.cpu_count(logical=False),
             "cpu_threads": psutil.cpu_count(logical=True),
             "cpu_usage": f"{cpu_percent}%",
+            "cpu_num": float(cpu_percent),
             "ram_total": f"{memory.total / (1024**3):.1f} GB",
             "ram_used": f"{memory.used / (1024**3):.1f} GB",
             "ram_available": f"{memory.available / (1024**3):.1f} GB",
             "ram_usage": f"{memory.percent}%",
+            "ram_num": float(memory.percent),
             "disk_total": f"{disk.total / (1024**3):.1f} GB",
             "disk_used": f"{disk.used / (1024**3):.1f} GB",
             "disk_free": f"{disk.free / (1024**3):.1f} GB",
             "disk_usage": f"{disk.percent}%",
+            "disk_num": float(disk.percent),
             "boot_time": boot_time.strftime("%Y-%m-%d %H:%M:%S"),
         }
 

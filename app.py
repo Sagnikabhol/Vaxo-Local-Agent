@@ -67,42 +67,47 @@ def inject_custom_css():
         /* ── Voice Orb ── */
         @keyframes pulse-ring {
             0% { transform: scale(0.9); opacity: 0.7; }
-            50% { transform: scale(1.1); opacity: 0.3; }
+            50% { transform: scale(1.15); opacity: 0.25; }
             100% { transform: scale(0.9); opacity: 0.7; }
         }
         @keyframes glow {
-            0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.4), 0 0 30px rgba(139, 92, 246, 0.2); }
-            50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.6), 0 0 50px rgba(139, 92, 246, 0.3); }
+            0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.4), 0 0 35px rgba(139, 92, 246, 0.25); }
+            50% { box-shadow: 0 0 35px rgba(99, 102, 241, 0.8), 0 0 60px rgba(139, 92, 246, 0.5); }
+        }
+        @keyframes wave-bar {
+            0%, 100% { height: 6px; }
+            50% { height: 28px; }
         }
 
         .voice-orb-container {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 24px 0;
+            padding: 16px 0 10px;
         }
 
         .voice-orb {
-            width: 80px;
-            height: 80px;
+            width: 88px;
+            height: 88px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 32px;
             position: relative;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .voice-orb.idle {
             background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 0 18px rgba(99, 102, 241, 0.35);
         }
 
         .voice-orb.listening {
-            background: linear-gradient(135deg, #312e81 0%, #4f46e5 100%);
-            animation: glow 1.5s ease-in-out infinite;
+            background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%);
+            animation: glow 1.2s ease-in-out infinite;
         }
 
         .voice-orb.processing {
@@ -112,7 +117,7 @@ def inject_custom_css():
 
         .voice-orb.speaking {
             background: linear-gradient(135deg, #4f46e5 0%, #8b5cf6 100%);
-            animation: glow 2s ease-in-out infinite;
+            animation: glow 1.6s ease-in-out infinite;
         }
 
         .voice-orb::before {
@@ -121,9 +126,30 @@ def inject_custom_css():
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            border: 2px solid rgba(139, 92, 246, 0.3);
-            animation: pulse-ring 2s ease-in-out infinite;
+            border: 2px solid rgba(139, 92, 246, 0.4);
+            animation: pulse-ring 2.2s ease-in-out infinite;
         }
+
+        /* ── Audio Equalizer Sound Wave ── */
+        .sound-wave {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            height: 32px;
+            margin-top: 10px;
+        }
+        .sound-wave .bar {
+            width: 4px;
+            border-radius: 3px;
+            background: linear-gradient(180deg, #818cf8 0%, #c084fc 100%);
+            animation: wave-bar 1.2s ease-in-out infinite;
+        }
+        .sound-wave .bar:nth-child(1) { animation-delay: 0.1s; }
+        .sound-wave .bar:nth-child(2) { animation-delay: 0.3s; }
+        .sound-wave .bar:nth-child(3) { animation-delay: 0.5s; }
+        .sound-wave .bar:nth-child(4) { animation-delay: 0.2s; }
+        .sound-wave .bar:nth-child(5) { animation-delay: 0.4s; }
 
         /* ── Status Badges ── */
         .status-badge {
@@ -433,46 +459,90 @@ def render_sidebar():
 def render_assistant_page():
     """Render the main chat assistant page."""
 
-    # Header with voice orb
+    # Header with animated voice orb and equalizer
     orb_state = st.session_state.voice_state
-    orb_emoji = {"idle": "🎙️", "listening": "🔴", "processing": "⚡", "speaking": "🔊"}.get(orb_state, "🎙️")
+    orb_emoji = {"idle": "🔮", "listening": "🔴", "processing": "⚡", "speaking": "🔊"}.get(orb_state, "🔮")
+    state_labels = {
+        "idle": "Vaxo is Ready — Tap to speak or type a command",
+        "listening": "🎙️ Listening... Speak your command clearly",
+        "processing": "⚡ Processing command...",
+        "speaking": "🔊 Speaking response...",
+    }
+
+    wave_html = ""
+    if orb_state in ("listening", "speaking", "processing"):
+        wave_html = """
+        <div class="sound-wave">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+        """
 
     st.markdown(f"""
     <div class="voice-orb-container">
-        <div class="voice-orb {orb_state}">
+        <div class="voice-orb {orb_state}" title="{state_labels.get(orb_state, 'Vaxo')}">
             {orb_emoji}
         </div>
+        <div style="margin-top: 10px; font-weight: 500; font-size: 0.9rem; color: #c7d2fe; letter-spacing: 0.03em;">
+            {state_labels.get(orb_state, 'Vaxo')}
+        </div>
+        {wave_html}
     </div>
     """, unsafe_allow_html=True)
 
     # Voice controls
-    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+    col1, col2, col3, col4 = st.columns([1.2, 1, 1, 1])
 
     with col1:
-        voice_btn = st.button("🎙️ Push to Talk", use_container_width=True, key="ptt_btn")
+        voice_btn = st.button("🎙️ Push to Talk", use_container_width=True, key="ptt_btn", help="Click and speak into your microphone")
 
     with col2:
         tts_toggle = st.toggle(
-            "🔊 Speak Responses",
+            "🔊 Voice Output",
             value=st.session_state.tts_enabled,
             key="tts_toggle",
+            help="Toggle spoken replies using offline Windows speech engine",
         )
         st.session_state.tts_enabled = tts_toggle
 
     with col3:
-        if st.button("🗑️ Clear Chat", use_container_width=True):
+        if st.button("🗑️ Clear Chat", use_container_width=True, help="Clear conversation history"):
             st.session_state.messages = []
             st.session_state.conversation_service.clear()
             st.session_state.conversation_service.start_new_conversation("Vaxo Session")
             st.rerun()
 
     with col4:
-        refresh_btn = st.button("🔄 Reconnect", use_container_width=True)
-        if refresh_btn:
+        refresh_btn = st.button("🔄 Reconnect", use_container_width=True, help="Refresh connection to Ollama"):
             st.session_state.ollama_connected = st.session_state.llm.check_connection()
             if st.session_state.ollama_connected:
                 st.session_state.available_models = st.session_state.llm.get_available_models()
             st.rerun()
+
+    # Interactive One-Click Suggestion Pills
+    st.markdown("###### ⚡ Instant Desktop Actions")
+    p1, p2, p3, p4, p5, p6 = st.columns(6)
+    with p1:
+        if st.button("🧮 Calculator", key="pill_calc", use_container_width=True):
+            handle_text_input("Open calculator")
+    with p2:
+        if st.button("📝 Notepad", key="pill_note", use_container_width=True):
+            handle_text_input("Open notepad")
+    with p3:
+        if st.button("🌐 Browser", key="pill_web", use_container_width=True):
+            handle_text_input("Open browser")
+    with p4:
+        if st.button("🕐 Date & Time", key="pill_time", use_container_width=True):
+            handle_text_input("What time is it?")
+    with p5:
+        if st.button("📊 Diagnostics", key="pill_diag", use_container_width=True):
+            handle_text_input("Show system info")
+    with p6:
+        if st.button("💡 Features", key="pill_help", use_container_width=True):
+            handle_text_input("What can you do?")
 
     st.markdown("---")
 
@@ -481,9 +551,17 @@ def render_assistant_page():
         handle_voice_input()
 
     # Chat messages display
-    for msg in st.session_state.messages:
+    for idx, msg in enumerate(st.session_state.messages):
         with st.chat_message(msg["role"], avatar="🧑" if msg["role"] == "user" else "🔮"):
             st.markdown(msg["content"])
+            if msg["role"] == "assistant" and len(msg["content"]) > 0:
+                # Small audio replay pill
+                col_rep, _ = st.columns([1, 10])
+                with col_rep:
+                    if st.button("🔊", key=f"rep_{idx}", help="Replay this response aloud"):
+                        tts: TextToSpeechService = st.session_state.tts_service
+                        if tts and tts.is_available():
+                            tts.speak(msg["content"])
 
     # Text input
     if prompt := st.chat_input("Type a message or command...", key="chat_input"):
@@ -536,18 +614,20 @@ def handle_voice_input():
             return
 
         st.session_state.voice_state = "listening"
-        with st.spinner("🔴 Listening... Speak now!"):
-            text = stt.listen(timeout=5, phrase_time_limit=10)
+        st.toast("🔴 Microphone active — Speak your command now!")
+        with st.spinner("🔴 Listening for your voice... Speak now!"):
+            text = stt.listen(timeout=8, phrase_time_limit=15)
 
         if text:
-            st.success(f"🎙️ Heard: *{text}*")
+            st.toast(f"🎙️ Transcribed: \"{text}\"")
+            st.success(f"🎙️ Heard: *\"{text}\"*")
             handle_text_input(text)
         else:
-            st.info("Didn't catch that. Please try again.")
+            st.info("Didn't catch that. Please speak clearly into your microphone.")
 
     except Exception as e:
         st.error(f"Voice input error: {e}")
-        st.info("💡 You can type your message instead.")
+        st.info("💡 Tip: You can also click any Quick Action pill or type in the chat box below.")
 
     st.session_state.voice_state = "idle"
 
@@ -643,6 +723,23 @@ def render_actions_page():
                     result = registry.execute(action.name)
                     if result.success:
                         st.success(result.message)
+                        st.toast(f"✅ Executed: {action.description}")
+
+                        # If system info, show interactive progress gauges
+                        if result.data and "cpu_num" in result.data:
+                            g1, g2, g3 = st.columns(3)
+                            g1.metric("CPU Usage", f"{result.data['cpu_num']:.1f}%")
+                            g1.progress(min(1.0, max(0.0, result.data['cpu_num'] / 100.0)))
+                            g2.metric("RAM Usage", f"{result.data['ram_num']:.1f}%")
+                            g2.progress(min(1.0, max(0.0, result.data['ram_num'] / 100.0)))
+                            g3.metric("Disk Usage", f"{result.data['disk_num']:.1f}%")
+                            g3.progress(min(1.0, max(0.0, result.data['disk_num'] / 100.0)))
+
+                        # Speak result if voice output is enabled
+                        if st.session_state.tts_enabled and st.session_state.tts_service:
+                            tts: TextToSpeechService = st.session_state.tts_service
+                            if tts and tts.is_available():
+                                tts.speak(result.message)
                     else:
                         st.error(result.message)
 
