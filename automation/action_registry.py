@@ -96,7 +96,7 @@ class ActionRegistry:
 
     def find_action(self, user_input: str) -> Optional[Action]:
         """
-        Find a matching action based on keyword matching.
+        Find a matching action based on keyword matching and speech recognition normalization.
 
         Args:
             user_input: The user's text input to match against.
@@ -105,14 +105,26 @@ class ActionRegistry:
             The matching Action or None if no match found.
         """
         input_lower = user_input.lower().strip()
+        # Clean punctuation added by speech recognizers (., !, ?, etc.)
+        clean_input = input_lower.replace(".", "").replace("?", "").replace("!", "").replace(",", "")
 
-        # Try exact keyword matches first (longer keywords first for specificity)
+        # Normalize common speech recognition splits (e.g. "note pad" -> "notepad")
+        normalized_input = (
+            clean_input
+            .replace("note pad", "notepad")
+            .replace("notes pad", "notepad")
+            .replace("cal culator", "calculator")
+            .replace("web browser", "browser")
+        )
+
+        # Try keyword matches against clean and normalized speech inputs
         all_matches: list[tuple[int, Action]] = []
 
         for action in self._actions.values():
             for keyword in action.keywords:
-                if keyword.lower() in input_lower:
-                    all_matches.append((len(keyword), action))
+                kw = keyword.lower()
+                if kw in clean_input or kw in normalized_input:
+                    all_matches.append((len(kw), action))
 
         if all_matches:
             # Return the action with the longest matching keyword (most specific)

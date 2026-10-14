@@ -212,6 +212,22 @@ class TestDefaultRegistry:
         actions = registry.get_all_actions()
         assert len(actions) >= 7
 
+    def test_find_action_speech_variations_notepad(self):
+        """Test speech recognition variations like 'open note pad' match open_notepad."""
+        registry = create_default_registry()
+        for phrase in ["open note pad", "note pad", "open the note pad", "can you open note pad for me?"]:
+            action = registry.find_action(phrase)
+            assert action is not None, f"Failed to match: {phrase}"
+            assert action.name == "open_notepad"
+
+    def test_find_action_speech_variations_calculator(self):
+        """Test speech recognition variations like 'cal culator' and 'open calc' match open_calculator."""
+        registry = create_default_registry()
+        for phrase in ["open calculator", "open calc", "open cal culator", "open the calculator"]:
+            action = registry.find_action(phrase)
+            assert action is not None, f"Failed to match: {phrase}"
+            assert action.name == "open_calculator"
+
 
 # ─────────────────────────────────────────────
 #   Windows Action Tests (Mocked)

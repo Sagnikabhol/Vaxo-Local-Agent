@@ -222,9 +222,9 @@ class VaxoLLM:
         msg_lower = message.lower().strip()
 
         intent_keywords = {
-            "open_calculator": ["open calculator", "calculator", "calc", "open calc"],
-            "open_notepad": ["open notepad", "notepad", "text editor", "open editor"],
-            "open_browser": ["open browser", "browser", "open chrome", "open edge", "internet", "web browser"],
+            "open_calculator": ["open calculator", "calculator", "calc", "open calc", "cal culator", "open cal culator"],
+            "open_notepad": ["open notepad", "notepad", "note pad", "open note pad", "text editor", "open editor", "open notes", "notes"],
+            "open_browser": ["open browser", "browser", "open chrome", "open edge", "internet", "web browser", "open google"],
             "get_time": ["what time", "current time", "what's the time", "tell me the time",
                          "time now", "date today", "what date", "today's date", "clock"],
             "get_system_info": ["system info", "system status", "cpu usage", "ram usage",

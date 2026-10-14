@@ -183,7 +183,7 @@ def create_default_registry() -> ActionRegistry:
     registry.register(Action(
         name="open_calculator",
         description="Open Windows Calculator",
-        keywords=["calculator", "calc", "open calculator", "open calc", "launch calculator", "start calculator", "open the calculator"],
+        keywords=["calculator", "calc", "open calculator", "open calc", "launch calculator", "start calculator", "open the calculator", "cal culator", "open cal culator", "math"],
         handler=open_calculator,
         category="applications",
     ))
@@ -191,7 +191,12 @@ def create_default_registry() -> ActionRegistry:
     registry.register(Action(
         name="open_notepad",
         description="Open Windows Notepad",
-        keywords=["notepad", "open notepad", "text editor", "editor", "open editor", "launch notepad", "start notepad", "open the notepad", "notes"],
+        keywords=[
+            "notepad", "note pad", "open notepad", "open note pad",
+            "open the notepad", "open the note pad", "text editor", "editor",
+            "open editor", "launch notepad", "launch note pad", "start notepad",
+            "start note pad", "notes", "open notes"
+        ],
         handler=open_notepad,
         category="applications",
     ))

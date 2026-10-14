@@ -87,11 +87,13 @@ class SpeechToTextService:
         recognizer = self._recognizer
         recognizer.pause_threshold = 0.8
         recognizer.non_speaking_duration = 0.5
+        recognizer.dynamic_energy_threshold = True
+        recognizer.energy_threshold = 280
 
         try:
             with sr.Microphone() as source:
-                # Adjust for ambient noise briefly
-                recognizer.adjust_for_ambient_noise(source, duration=0.4)
+                # Fast calibration so the first spoken words are not delayed or clipped
+                recognizer.adjust_for_ambient_noise(source, duration=0.15)
 
                 # Listen for speech
                 logger.info("Listening for speech...")
