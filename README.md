@@ -4,7 +4,7 @@
 [![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg)](https://streamlit.io/)
 [![Ollama](https://img.shields.io/badge/Local_LLM-Ollama-000000.svg)](https://ollama.ai/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/Tests-83%20Passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-85%20Passed-brightgreen.svg)]()
 
 > **Vaxo** is a production-grade, local-first voice AI and desktop automation assistant designed for Windows. It executes approved system tasks, speaks responses aloud using offline text-to-speech, and performs language reasoning using a locally hosted open-source LLM via Ollama — all without recurring cloud API fees or private data leakage.
 
@@ -220,20 +220,20 @@ Vaxo enforces a zero-trust model: only explicitly registered actions can be trig
 
 | Action Name | Voice / Typed Trigger Phrases | Behavior & Security Boundary |
 |---|---|---|
-| **Open Calculator** | *"open calculator"*, *"calc"*, *"open calc"* | Launches Windows `calc.exe` with `CREATE_NO_WINDOW` flag |
-| **Open Notepad** | *"open notepad"*, *"text editor"*, *"open editor"* | Launches `notepad.exe` |
-| **Open Browser** | *"open browser"*, *"internet"*, *"open chrome"* | Opens default browser; strictly validates `http://` and `https://` schemas |
+| **Open Calculator** | *"open calculator"*, *"calc"*, *"open calc"*, *"cal culator"* | Launches Windows `calc.exe` visibly with `shell=False` |
+| **Open Notepad** | *"open notepad"*, *"open note pad"*, *"text editor"*, *"notes"* | Launches `notepad.exe` visibly with speech normalization |
+| **Open Browser** | *"open browser"*, *"internet"*, *"open chrome"*, *"google"* | Opens default browser; strictly validates `http://` and `https://` schemas |
 | **Current Time & Date** | *"what time is it"*, *"current time"*, *"what date"* | Formats localized system clock (`strftime`) |
 | **System Diagnostics** | *"system info"*, *"cpu usage"*, *"ram status"* | Collects live CPU, RAM, disk, and boot time using `psutil` |
 | **Stop Voice** | *"stop listening"*, *"mute"*, *"be quiet"* | Disables TTS speech output and resets voice state |
 | **Show History** | *"show history"*, *"conversation history"* | Navigates to conversation and action audit log |
-| **AI Conversational Chat** | Any general knowledge or question | Processed by local Ollama LLM |
+| **AI Conversational Chat** | Any general knowledge or question | Processed by local Ollama LLM (or Smart Demo Mode) |
 
 ---
 
 ## 🧪 Automated Testing & Verification
 
-Vaxo includes a comprehensive test suite covering 83 test scenarios.
+Vaxo includes a comprehensive test suite covering **85 test scenarios** with a **100% pass rate**.
 
 ### Run All Unit & Security Tests
 ```powershell
@@ -241,7 +241,7 @@ Vaxo includes a comprehensive test suite covering 83 test scenarios.
 ```
 
 ### Test Coverage Highlights
-- ✅ **`test_action_registry.py`**: Tests registration, execution, argument passing, error handling, and keyword routing.
+- ✅ **`test_action_registry.py`**: Tests registration, execution, speech variation normalization (`"note pad"` $\rightarrow$ `"notepad"`), argument passing, error handling, and keyword routing.
 - ✅ **`test_validation.py`**: AST-level security verification ensuring no `shell=True` subprocess calls exist; validates URL scheme sanitization and rejects unauthorized command injections.
 - ✅ **`test_conversation.py`**: SQLite database initialization, transaction isolation, message persistence, context window slicing, and audit logging.
 - ✅ **`test_llm_service.py`**: Mocked connection dropouts, timeout handling, model 404 detection, and Demo Mode simulation fallbacks.
