@@ -15,7 +15,9 @@ build/
 .env
 
 # Database
-data/*.db
+data/*.db*
+*.db*
+*.sqlite3
 
 # IDE
 .vscode/
