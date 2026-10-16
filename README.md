@@ -274,59 +274,10 @@ Vaxo includes a comprehensive test suite covering **85 test scenarios** with a *
 | **TTS Engine Error** | Audio device temporarily locked by another app | Click "Clear Chat" or restart the app; `pyttsx3` will automatically reinitialize. |
 | **High RAM Consumption** | Selected LLM is too large for 8GB RAM | Switch to `tinyllama` or `qwen2:0.5b` in the Vaxo Settings page. |
 
----
-
-## 📦 Deployment Options
-
-### Option A: Local Desktop Deployment (Recommended)
-1. Ensure Python 3.11+ and Ollama are installed.
-2. Run `start_vaxo.bat`.
-3. Optionally package as a portable desktop application using PyInstaller:
-   ```powershell
-   pip install pyinstaller
-   pyinstaller --onefile --name "Vaxo" app.py
-   ```
-
-### Option B: Public Portfolio Demonstration
-For hosting a demo on platforms like Streamlit Community Cloud:
-1. In `config/settings.py` or `.env`, set `DEMO_MODE=true`.
-2. Push repository to GitHub (with `data/` and `.env` excluded via `.gitignore`).
-3. Connect the repository to Streamlit Community Cloud.
-4. Recruiters can test the responsive UI, conversation state, and simulated responses without exposing local hardware or requiring private network access.
-
----
-
-## 🎓 Portfolio & Interview Guide (MCA / SDE)
-
-### Key Technical Questions & Answers for Interviews
-
-**Q1: Why did you choose Ollama instead of calling OpenAI or Claude APIs?**
-> *"Ollama allows the assistant to run completely locally, eliminating cloud API costs and protecting user privacy. For an MCA portfolio project, integrating a local runtime demonstrates an understanding of on-device LLM deployment, resource management, and resilience to network latency."*
-
-**Q2: How does Vaxo prevent arbitrary code execution or prompt injection?**
-> *"Vaxo does not allow the LLM to execute shell commands. Instead, it uses an explicit `ActionRegistry` with pre-defined safe handlers and keyword matching. Subprocess calls are executed with `shell=False` and strict argument validation, verified via AST-based automated tests."*
-
-**Q3: How is state managed in the application?**
-> *"State is managed at two tiers: volatile UI state is tracked using Streamlit's `st.session_state`, while long-term history is stored in SQLite using WAL mode for reliable write concurrency."*
-
-**Q4: How does the application perform on low-resource hardware?**
-> *"The project accommodates systems with 8 GB of RAM and integrated graphics by defaulting to `tinyllama` (1.1B parameters, requiring ~1 GB RAM), using push-to-talk to conserve CPU cycles, and utilizing offline SAPI5 synthesis."*
-
----
-
-## 📄 Resume Entry Template
-
-```text
-Vaxo — Local Voice AI & Desktop Automation Agent | Python, Streamlit, Ollama, SQLite
-• Developed a local-first voice AI assistant providing offline text-to-speech, speech-to-text, and local LLM reasoning.
-• Architected a zero-trust Action Registry restricting OS interactions to allowlisted desktop commands, preventing prompt injection.
-• Integrated local Ollama LLM runtime with fallback mechanisms, dynamic model switching, and automated health checks.
-• Implemented persistent conversation tracking and action auditing using SQLite with WAL mode.
-• Built an automated test suite with 83 pytest unit/security test cases, achieving 100% pass rate.
-```
 
 ---
 
 ## 📜 License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
