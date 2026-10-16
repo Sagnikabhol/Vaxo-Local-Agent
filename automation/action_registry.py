@@ -97,6 +97,8 @@ class ActionRegistry:
     def find_action(self, user_input: str) -> Optional[Action]:
         """
         Find a matching action based on keyword matching and speech recognition normalization.
+        Guards against negations, complaints, and conversational queries so that statements like
+        'Notepad is not opened' or 'don't open notepad' are never falsely executed as commands.
 
         Args:
             user_input: The user's text input to match against.
@@ -117,6 +119,26 @@ class ActionRegistry:
             .replace("web browser", "browser")
         )
 
+        # Guard: Check for explicit negation, trouble report, or status inquiry
+        negation_phrases = (
+            "not open", "not opened", "not opening",
+            "did not open", "didn't open", "didnt open",
+            "does not open", "doesn't open", "doesnt open",
+            "don't open", "dont open", "do not open",
+            "never open", "isn't open", "is not open", "isnt open",
+            "is not opened", "isn't opened", "isnt opened",
+            "failed to open", "unable to open", "cannot open", "can't open", "cant open",
+            "won't open", "wont open", "will not open",
+            "stop open", "don't launch", "dont launch", "not launch", "not launching",
+            "why is", "why isn't", "why did", "why didn't", "how to open", "not working"
+        )
+        for neg in negation_phrases:
+            if neg in normalized_input or neg in clean_input:
+                logger.info("Negation or troubleshooting query detected in input: '%s' — bypassing direct action trigger", user_input)
+                return None
+
+        words = normalized_input.split()
+
         # Try keyword matches against clean and normalized speech inputs
         all_matches: list[tuple[int, Action]] = []
 
@@ -124,7 +146,16 @@ class ActionRegistry:
             for keyword in action.keywords:
                 kw = keyword.lower()
                 if kw in clean_input or kw in normalized_input:
+                    action_verbs = {"open", "launch", "start", "run", "show", "bring", "calc", "calculate"}
+                    kw_has_verb = any(v in kw.split() for v in action_verbs)
+                    # For application launches in longer sentences (>= 4 words),
+                    # require that either the matched keyword or the user input contains an action verb
+                    if getattr(action, "category", "") == "applications" and len(words) >= 4:
+                        if not kw_has_verb and not any(v in words for v in action_verbs):
+                            continue
+
                     all_matches.append((len(kw), action))
+
 
         if all_matches:
             # Return the action with the longest matching keyword (most specific)
@@ -132,6 +163,7 @@ class ActionRegistry:
             return all_matches[0][1]
 
         return None
+
 
     def get_all_actions(self) -> list[Action]:
         """Get all registered actions."""

@@ -202,6 +202,23 @@ class VaxoLLM:
                 "👋 **[Portfolio Demo Mode]** Hello! I'm Vaxo, your local voice AI assistant. "
                 "Try saying *'open calculator'*, *'what time is it'*, *'system info'*, or ask me anything!"
             )
+        elif any(w in msg_lower for w in ["not opened", "not open", "didn't open", "not opening", "failed to open", "not worked", "not working"]):
+            if "notepad" in msg_lower or "note pad" in msg_lower:
+                return (
+                    "⚠️ **Notepad Status:** I apologize if Notepad didn't display on your screen! "
+                    "Windows may have kept a suspended background instance. "
+                    "Please click the **📝 Notepad** instant action button above or say *'open notepad'* to bring it to the foreground."
+                )
+            elif "calc" in msg_lower:
+                return (
+                    "⚠️ **Calculator Status:** I apologize if Calculator didn't show on screen! "
+                    "Please click the **🧮 Calculator** instant action button above or say *'open calculator'*."
+                )
+            else:
+                return (
+                    "⚠️ I understand that an action did not open or work as expected. "
+                    "You can trigger any desktop tool immediately using the instant action buttons above."
+                )
         else:
             return (
                 f"💡 **[Portfolio Demo Mode]** I received your query: *\"{message}\"*\n\n"
@@ -218,8 +235,24 @@ class VaxoLLM:
         Returns:
             dict with 'intent' (action name or 'chat') and 'args' (dict).
         """
-        # Quick keyword-based intent detection (works without LLM)
         msg_lower = message.lower().strip()
+
+        # Guard: Check for explicit negation or troubleshooting queries
+        negation_phrases = (
+            "not open", "not opened", "not opening",
+            "did not open", "didn't open", "didnt open",
+            "does not open", "doesn't open", "doesnt open",
+            "don't open", "dont open", "do not open",
+            "never open", "isn't open", "is not open", "isnt open",
+            "is not opened", "isn't opened", "isnt opened",
+            "failed to open", "unable to open", "cannot open", "can't open",
+            "won't open", "wont open", "stop open", "don't launch", "dont launch",
+            "why is", "why isn't", "why did", "why didn't", "how to open", "not working"
+        )
+        if any(neg in msg_lower for neg in negation_phrases):
+            return {"intent": "chat", "args": {}}
+
+        words = msg_lower.split()
 
         intent_keywords = {
             "open_calculator": ["open calculator", "calculator", "calc", "open calc", "cal culator", "open cal culator"],
@@ -238,6 +271,11 @@ class VaxoLLM:
         for intent, keywords in intent_keywords.items():
             for keyword in keywords:
                 if keyword in msg_lower:
+                    # Guard bare nouns in long sentences
+                    action_verbs = {"open", "launch", "start", "run", "show", "bring", "calc", "calculate"}
+                    is_bare_noun = len(keyword.split()) == 1 and keyword not in action_verbs
+                    if len(words) >= 4 and is_bare_noun and not any(v in words for v in action_verbs):
+                        continue
                     return {"intent": intent, "args": {}}
 
         # Default to chat intent

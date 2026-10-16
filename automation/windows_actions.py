@@ -6,6 +6,8 @@ Each action uses subprocess with shell=False and an explicit allowlist.
 Never enables shell mode or executes arbitrary commands.
 """
 
+import os
+import sys
 import logging
 import platform
 import subprocess
@@ -32,6 +34,11 @@ def open_calculator() -> ActionResult:
             ["calc.exe"],
             shell=False,
         )
+        if hasattr(os, "startfile") and "pytest" not in sys.modules:
+            try:
+                os.startfile("calc.exe")
+            except Exception:
+                pass
         return ActionResult(
             success=True,
             message="✅ Windows Calculator has been opened.",
@@ -52,6 +59,11 @@ def open_notepad() -> ActionResult:
             ["notepad.exe"],
             shell=False,
         )
+        if hasattr(os, "startfile") and "pytest" not in sys.modules:
+            try:
+                os.startfile("notepad.exe")
+            except Exception:
+                pass
         return ActionResult(
             success=True,
             message="✅ Notepad has been opened.",
@@ -63,6 +75,7 @@ def open_notepad() -> ActionResult:
         )
     except OSError as e:
         return ActionResult(success=False, message=f"❌ Failed to open Notepad: {e}")
+
 
 
 def open_browser(url: str = "") -> ActionResult:

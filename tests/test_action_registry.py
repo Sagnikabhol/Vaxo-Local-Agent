@@ -228,6 +228,26 @@ class TestDefaultRegistry:
             assert action is not None, f"Failed to match: {phrase}"
             assert action.name == "open_calculator"
 
+    def test_find_action_negation_and_complaint_guards(self):
+        """Test that negative phrases and troubleshooting statements do NOT trigger actions."""
+        registry = create_default_registry()
+        negative_phrases = [
+            "Notepad is not opened",
+            "notepad didn't open",
+            "notepad did not open",
+            "notepad is not open",
+            "calculator is not opened",
+            "don't open notepad",
+            "why is notepad not opened",
+            "notepad is not opening",
+            "notepad failed to open",
+            "notepad is a great text editor",
+        ]
+        for phrase in negative_phrases:
+            action = registry.find_action(phrase)
+            assert action is None, f"Phrase '{phrase}' should NOT match any action, got '{action.name if action else None}'"
+
+
 
 # ─────────────────────────────────────────────
 #   Windows Action Tests (Mocked)

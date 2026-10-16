@@ -231,22 +231,60 @@ def inject_custom_css():
             text-transform: uppercase;
         }
 
-        /* ── Misc ── */
+        /* ── Modern Buttons & Pills ── */
         .stButton > button {
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.2s ease;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.8) 0%, rgba(49, 46, 129, 0.8) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            color: #e0e7ff;
+        }
+        .stButton > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 18px rgba(99, 102, 241, 0.45);
+            border-color: rgba(167, 139, 250, 0.8);
+            color: #ffffff;
+        }
+        .stButton > button:active {
+            transform: translateY(0px);
         }
 
+        /* ── Glassmorphic Chat Messages ── */
         div[data-testid="stChatMessage"] {
-            background: transparent !important;
+            border-radius: 14px;
+            padding: 12px 18px;
+            margin: 10px 0;
+            background: rgba(17, 24, 39, 0.65) !important;
+            border: 1px solid rgba(99, 102, 241, 0.18) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(8px);
+        }
+
+        /* ── Hero & Monitor HUD ── */
+        .hud-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 12px;
+            padding: 8px 18px;
+            margin: 8px 0 16px 0;
+            font-size: 0.82rem;
+            color: #94a3b8;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .stTextInput > div > div > input {
             background: rgba(17, 24, 39, 0.8) !important;
-            border: 1px solid rgba(75, 85, 99, 0.4) !important;
+            border: 1px solid rgba(99, 102, 241, 0.3) !important;
             border-radius: 10px !important;
             color: #e5e7eb !important;
+        }
+        .stTextInput > div > div > input:focus {
+            border-color: #818cf8 !important;
+            box-shadow: 0 0 12px rgba(129, 140, 248, 0.3) !important;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -453,9 +491,22 @@ def render_sidebar():
             col2.metric("Messages", stats["total_messages"])
 
 
-# ─────────────────────────────────────────────
-#   Page: Assistant (Main Chat)
-# ─────────────────────────────────────────────
+def get_live_app_status() -> dict[str, bool]:
+    """Check running state of allowlisted apps in real-time."""
+    status = {"notepad": False, "calc": False}
+    try:
+        import psutil
+        for proc in psutil.process_iter(["name"]):
+            name = (proc.info["name"] or "").lower()
+            if "notepad" in name:
+                status["notepad"] = True
+            elif "calc" in name:
+                status["calc"] = True
+    except Exception:
+        pass
+    return status
+
+
 def render_assistant_page():
     """Render the main chat assistant page."""
 
@@ -544,6 +595,24 @@ def render_assistant_page():
         if st.button("💡 Features", key="pill_help", use_container_width=True):
             handle_text_input("What can you do?")
 
+    # Live Process Health & Desktop Monitor HUD
+    app_status = get_live_app_status()
+    note_color = "#34d399" if app_status["notepad"] else "#94a3b8"
+    note_label = "🟢 Running" if app_status["notepad"] else "⚪ Inactive"
+    calc_color = "#34d399" if app_status["calc"] else "#94a3b8"
+    calc_label = "🟢 Running" if app_status["calc"] else "⚪ Inactive"
+
+    st.markdown(f"""
+    <div class="hud-panel">
+        <div><span>🖥️ <b>Windows Desktop Monitor:</b></span></div>
+        <div style="display:flex; gap:18px;">
+            <span>📝 Notepad: <b style="color:{note_color}">{note_label}</b></span>
+            <span>🧮 Calculator: <b style="color:{calc_color}">{calc_label}</b></span>
+            <span>🌐 Browser: <b style="color:#38bdf8">Ready</b></span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     st.markdown("---")
 
     # Handle Push-to-Talk
@@ -555,13 +624,20 @@ def render_assistant_page():
         with st.chat_message(msg["role"], avatar="🧑" if msg["role"] == "user" else "🔮"):
             st.markdown(msg["content"])
             if msg["role"] == "assistant" and len(msg["content"]) > 0:
-                # Small audio replay pill
-                col_rep, _ = st.columns([1, 10])
+                col_rep, col_action = st.columns([1, 4])
                 with col_rep:
                     if st.button("🔊", key=f"rep_{idx}", help="Replay this response aloud"):
                         tts: TextToSpeechService = st.session_state.tts_service
                         if tts and tts.is_available():
                             tts.speak(msg["content"])
+                with col_action:
+                    if "Notepad Status" in msg["content"] or "notepad" in msg["content"].lower() and "apologize" in msg["content"].lower():
+                        if st.button("🚀 Force Launch Notepad Now", key=f"force_note_{idx}"):
+                            handle_text_input("Open notepad")
+                    elif "Calculator Status" in msg["content"]:
+                        if st.button("🧮 Force Launch Calculator Now", key=f"force_calc_{idx}"):
+                            handle_text_input("Open calculator")
+
 
     # Text input
     if prompt := st.chat_input("Type a message or command...", key="chat_input"):
